@@ -4,7 +4,7 @@ import threading
 import time
 import random
 
-############################################################
+###################Plant_Simulation V_0.2#########################################
 ###########Todo Liste#######################################
 # 3. Wetter soll Pflanzen beschädigen 
 # 7. Mutationen vllt einbauen
@@ -33,10 +33,10 @@ import random
 
 
 # Fenstergröße und Gittereinstellungen
-GRID_SIZE = 30  # Zellen etwas kleiner machen
-GRID_WIDTH = 26  # Anzahl der Zellen horizontal anpassen
-GRID_HEIGHT = 20  # Anzahl der Zellen vertikal anpassen
-WIDTH, HEIGHT = GRID_WIDTH * GRID_SIZE, GRID_HEIGHT * GRID_SIZE  # Fenster bleibt gleich groß
+GRID_SIZE = 30  
+GRID_WIDTH = 26  
+GRID_HEIGHT = 20  
+WIDTH, HEIGHT = GRID_WIDTH * GRID_SIZE, GRID_HEIGHT * GRID_SIZE  
 INFO_WIDTH = 300
 INFO_HEIGHT = 200
 
@@ -49,7 +49,7 @@ BLUE =  (0, 0, 255)
 DARKBLUE = (0, 0, 128)
 DARKGREEN = (28, 87, 4)
 
-# Pygame initialisieren
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pflanzen Simulation")
