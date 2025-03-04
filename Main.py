@@ -370,7 +370,5 @@ while running:
         # Zeichne die Informationen der Pflanze
         draw_info_panel(screen, selected_creature)
 
-
-
     pygame.display.flip()
     clock.tick(60)
