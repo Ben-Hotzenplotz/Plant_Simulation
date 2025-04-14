@@ -84,9 +84,10 @@ class Creature:
         self.Eltern = eltern  
         self.Mutationen = []
         # Mutationsfaktoren
-        self.Wasserverbrauch = 0
-        self.Energieverbrauch = 0
-        #Wetterschäden : Ast abgebrochen, 
+        self.Wasserverbrauch = 5
+        self.Nahrungsverbrauch = 5
+        self.Energieverbrauch = 4
+        #Wetterschäden : Ast abgebrochen, Frostschaden, Hagelschaden, Infektion
         self.Wetterschäden = []
 
 
@@ -227,17 +228,15 @@ def Lebensprozesse():
     while True:
         if Tag == True:
             for creature in creatures:
-                Wasserverbrauch = random.randint(1, WasserundNahrungsVerbrauch)
                 Licht = 100
                 # Energieverbrauch
-                creature.Energie -= random.randint(1, Energieverbrauch) + (creature.Alter // 15)   # Mal gucken ob das so passt
+                creature.Energie -= creature.Energieverbrauch   # Mal gucken ob das so passt
                 creature.Alter += 1
                 Nährstoffverbrauch()
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
-                wasserverbrauch = Wasserverbrauch + (creature.Alter // 20)
                 if Grundwasserstand > 0:
-                    Grundwasserstand -= wasserverbrauch
+                    Grundwasserstand -= creature.Wasserverbrauch
                 # Tod?
                 if creature.Energie <= 0:
                     creatures.remove(creature)
@@ -250,17 +249,15 @@ def Lebensprozesse():
             time.sleep(5)
         elif Tag == False:
             for creature in creatures:
-                Wasserverbrauch = random.randint(1, WasserundNahrungsVerbrauch)
                 Licht = 0
                 # Energieverbrauch
-                creature.Energie -= random.randint(1, Energieverbrauch) + (creature.Alter // 15)    # Mal gucken ob das so passt
+                creature.Energie -= creature.Energieverbrauch    # Mal gucken ob das so passt
                 creature.Alter += 1
                 Nährstoffverbrauch()
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
-                wasserverbrauch = Wasserverbrauch + (creature.Alter // 20)
                 if Grundwasserstand > 0:
-                    Grundwasserstand -= wasserverbrauch
+                    Grundwasserstand -= creature.Wasserverbrauch
                 # Tot?
                 if creature.Energie <= 0:
                     creatures.remove(creature)
@@ -281,9 +278,8 @@ def Nährstoffwiederherstellung():
     Dazu = creature.Alter * 50             # Mal gucken ob das so passt
     Bodennährstoffgehalt += Dazu
 def Nährstoffverbrauch():
-    global Bodennährstoffgehalt
-    Weg = random.randint(1, 2)                # Mal gucken ob das so passt            
-    Bodennährstoffgehalt -= Weg  
+    global Bodennährstoffgehalt        
+    Bodennährstoffgehalt -= creature.Nahrungsverbrauch 
             
 # Wetter
 aktuelles_Wetter = "Bewölkt"
@@ -293,7 +289,6 @@ def Wetter():
     
     # Chance auf Wetteränderung
     ChangeWetter = random.randint(1, 100)
-    print(f"Wetterwürfel: {ChangeWetter}")
     
     # Wetterbestimmung je nach Jahreszeit
     if Season == "Frühling":
@@ -327,6 +322,7 @@ def Wetter():
         # Normales Wetter (35% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
+        Pflanzenschäden()
             
     elif Season == "Sommer":
         # Säureregen (1% Chance)
@@ -356,6 +352,7 @@ def Wetter():
         # Normales Wetter (9% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
+        Pflanzenschäden()
             
     elif Season == "Herbst":
         # Säureregen (1% Chance)
@@ -385,6 +382,7 @@ def Wetter():
         # Normales Wetter (28% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
+        Pflanzenschäden()
             
     elif Season == "Winter":
         # Säureregen (1% Chance)
@@ -411,6 +409,33 @@ def Wetter():
         # Normales Wetter (2% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
+        Pflanzenschäden()
+            
+def Pflanzenschäden():
+    Dicerollinfektion = random.randint(1, 100000)
+    if aktuelles_Wetter == "Säureregen":
+        for creature in creatures:
+            creature.Wetterschäden.append("Säureschaden")
+    elif aktuelles_Wetter == "Hagel":
+        for creature in creatures:
+            creature.Wetterschäden.append("Hagelschaden")
+    elif aktuelles_Wetter == "Sturm":
+        for creature in creatures:
+            creature.Wetterschäden.append("Ast abgebrochen")
+    if Dicerollinfektion < 1000:
+        for creature in creatures:
+            creature.Wetterschäden.append("Infektion")
+            
+def Pflanzenschädeneffekt():
+    for creature in creatures:
+        if "Säureschaden" in creature.Wetterschäden:
+            creature.Energie -= 10
+        if "Hagelschaden" in creature.Wetterschäden:
+            creature.Energie -= 20
+        if "Ast abgebrochen" in creature.Wetterschäden:
+            creature.Energie -= 15
+        if "Infektion" in creature.Wetterschäden:
+            creature.Energie -= 25
             
 # Vortpflanzen
 def Vortpflanzung(creature):
