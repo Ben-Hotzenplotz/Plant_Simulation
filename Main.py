@@ -6,21 +6,17 @@ import random
 
 ###################Plant_Simulation V_0.2#########################################
 ###########Todo Liste#######################################
-# 3. Wetter soll Pflanzen beschädigen 
 # 7. Mutationen vllt einbauen
-# 8. Verschiedene Wetter einbauen -> Gewitter, Tornado, Feuersturm, Flut, Hagel, ...
-# 9. Seasonen einbauen -> Winter, Sommer, Herbst, Frühling
 # 10. Geschwindigkeit einfach anpassbar -> Config Datei
 # 11. UI verbessern -> Graphen, Komplizierter: Pflanze anklicken und dann öffnet sich ein seperates Fenster mit infos über die Pflanze 
-# -> Mutierte eigenschaften anzeigen
 # 12. Regenanimation (Einzelne random Pixel die sich Bläuchlich färben)
+# -> Wichtig Plfanzenschäden sollten auch wieder weg gehen wenn die Pflanze sich regeneriert hat ######### !!! Wichtig !!!! #########
 ###################################################################
 ######################Schönheit#####################################
 # 2.  
 ######################Ganz Späte Ideen##############################
 # 1. Stammbaum
 # 2. Logisch generierte Pflanzennamen                                                                                     ###### So halb fertig
-# 3. Config kann viele Faktoren ändern (Z.B Regenwahrscheinlichkeit, Welche Wetter es geben kann, ...)
 # 4. Größeren Bildschirm für Raspi kaufen und darauf das laufen lassen auch als schöne und interesannte Deko              ###### Echt gute Idee
 
 ############################################################
@@ -123,6 +119,7 @@ class Creature:
             "Alter": self.Alter,
             "Wachstumsstadium": self.Wachstumsstadium,
             "Eltern": self.Eltern.Pflanzenname if self.Eltern else "Keine",
+            "Wetterschäden": self.Wetterschäden,
             "Mutationen": self.Mutationen
         }
         return info
@@ -217,10 +214,10 @@ def add_plant_to_ui(creature):
     pygame.display.flip()
     
 # Lebensparameter
-global Energieverbrauch, WasserundNahrungsVerbrauch, Licht, Wasserverbrauch, Grundwasserstand
+global Licht, Wasserverbrauch, Grundwasserstand
+Sturmschädenenergie = 0
+Sturmschädenwasser = 0
 Tag = True
-WasserundNahrungsVerbrauch = 5
-Energieverbrauch = 4
 Licht = 100
 def Lebensprozesse():
     global Licht, Tag, Wasserverbrauch, Grundwasserstand, Bodennährstoffgehalt
@@ -229,13 +226,15 @@ def Lebensprozesse():
             for creature in creatures:
                 Licht = 100
                 # Energieverbrauch
-                creature.Energie -= creature.Energieverbrauch   # Mal gucken ob das so passt
+                Energieverbrauch = creature.Energieverbrauch + Sturmschädenenergie
+                creature.Energie -= Energieverbrauch 
                 creature.Alter += 1
                 Nährstoffverbrauch(creature)
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
                 if Grundwasserstand > 0:
-                    Grundwasserstand -= creature.Wasserverbrauch
+                    Wasserverbrauch = creature.Wasserverbrauch + Sturmschädenwasser
+                    Grundwasserstand -= Wasserverbrauch
                 # Tod?
                 if creature.Energie <= 0:
                     creatures.remove(creature)
@@ -250,13 +249,15 @@ def Lebensprozesse():
             for creature in creatures:
                 Licht = 0
                 # Energieverbrauch
-                creature.Energie -= creature.Energieverbrauch    # Mal gucken ob das so passt
+                Energieverbrauch = creature.Energieverbrauch + Sturmschädenenergie
+                creature.Energie -= Energieverbrauch    # Mal gucken ob das so passt
                 creature.Alter += 1
                 Nährstoffverbrauch(creature)
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
                 if Grundwasserstand > 0:
-                    Grundwasserstand -= creature.Wasserverbrauch
+                    Wasserverbrauch = creature.Wasserverbrauch + Sturmschädenwasser
+                    Grundwasserstand -= Wasserverbrauch
                 # Tot?
                 if creature.Energie <= 0:
                     creatures.remove(creature)
@@ -411,30 +412,44 @@ def Wetter():
         Pflanzenschäden()
             
 def Pflanzenschäden():
-    Dicerollinfektion = random.randint(1, 100000)
     if aktuelles_Wetter == "Säureregen":
         for creature in creatures:
-            creature.Wetterschäden.append("Säureschaden")
+            Schadenroll = random.randint(1, 100)
+            if Schadenroll >= 5:
+                creature.Wetterschäden.append("Säureschaden")
     elif aktuelles_Wetter == "Hagel":
         for creature in creatures:
-            creature.Wetterschäden.append("Hagelschaden")
+            Schadenroll = random.randint(1, 100)
+            if Schadenroll <= 5:
+                creature.Wetterschäden.append("Hagelschaden")
     elif aktuelles_Wetter == "Sturm":
         for creature in creatures:
-            creature.Wetterschäden.append("Ast abgebrochen")
-    if Dicerollinfektion < 1000:
+            Schadenroll = random.randint(1, 100)
+            if Schadenroll >= 15:
+                creature.Wetterschäden.append("Ast abgebrochen")
+    else:
+        Dicerollinfektion = random.randint(1, 100000)
         for creature in creatures:
-            creature.Wetterschäden.append("Infektion")
+            if Dicerollinfektion <= 1000:
+                creature.Wetterschäden.append("Infektion")
             
 def Pflanzenschädeneffekt():
+    global Sturmschädenenergie, Sturmschädenwasser
     for creature in creatures:
         if "Säureschaden" in creature.Wetterschäden:
             creature.Energie -= 10
+            Sturmschädenenergie = 3
         if "Hagelschaden" in creature.Wetterschäden:
             creature.Energie -= 20
+            Sturmschädenenergie = 2
         if "Ast abgebrochen" in creature.Wetterschäden:
             creature.Energie -= 15
+            Sturmschädenenergie = 1
+            Sturmschädenwasser = 2
         if "Infektion" in creature.Wetterschäden:
             creature.Energie -= 25
+            Sturmschädenenergie = 5
+            Sturmschädenwasser = 5
             
 # Vortpflanzen
 def Vortpflanzung(creature):
