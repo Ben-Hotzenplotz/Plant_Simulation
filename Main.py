@@ -25,12 +25,11 @@ import random
 
 ############################################################
 #####################Bug Liste################################
-#Wetter Funktioniert noch nicht ganz
+
 
 
 
 ############################################################
-
 
 # Fenstergröße und Gittereinstellungen
 GRID_SIZE = 30  
@@ -482,8 +481,35 @@ def Vortpflanzungszyklus():
 def Wetterzyklus():
     while True:
         Wetter()
+        Datenspeicherung()
         time.sleep(5)
         
+        
+def Leere_Dateien():
+    open("Data\\Anzahlpflanzen.txt", "w").close()
+    open("Data\\Bodennährstoffe.txt", "w").close()
+    open("Data\\Grundwasserstand.txt", "w").close()
+    open("Data\\Wetter.txt", "w").close()
+
+def Datenspeicherung():
+    with open("Data\Anzahlpflanzen.txt", "a") as f:
+        f.write(f"Tag: {Aktueller_Tag}\n")
+        f.write(f"Anzahl Pflanzen: {len(creatures)}\n")
+    with open("Data\Bodennährstoffe.txt", "a") as f:
+        f.write(f"Tag: {Aktueller_Tag}\n")
+        f.write(f"Bodennährstoffe: {Bodennährstoffgehalt}\n")
+    with open("Data\Grundwasserstand.txt", "a") as f:
+        f.write(f"Tag: {Aktueller_Tag}\n")
+        f.write(f"Grundwasserstand: {Grundwasserstand}\n")
+    with open("Data\Wetter.txt", "a") as f:
+        f.write(f"Tag: {Aktueller_Tag}\n")
+        f.write(f"Wetter: {aktuelles_Wetter}\n")
+    with open("Data\Gesamtenergie.txt", "a") as f:
+        f.write(f"Tag: {Aktueller_Tag}\n")
+        f.write(f"Gesamtenergie: {sum(creature.Energie for creature in creatures)}\n")
+    
+    
+    
 Farbe = WHITE
 threading.Thread(target=Tag_Nacht_Zyklus, daemon=True).start()
 threading.Thread(target=Lebensprozesse, daemon=True).start()
@@ -499,6 +525,8 @@ def draw_grid():
 running = True
 selected_creature = None  # Speichert die ausgewählte Pflanze
 show_info_window = False
+
+Leere_Dateien()
 
 while running:
     screen.fill(Farbe)
