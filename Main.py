@@ -86,8 +86,9 @@ class Creature:
         # Mutationsfaktoren
         self.Wasserverbrauch = 0
         self.Energieverbrauch = 0
-        #Wetterschäden
+        #Wetterschäden : Ast abgebrochen, 
         self.Wetterschäden = []
+
 
         # Namensvergabe
         if initial_name_counter < 10:
@@ -289,180 +290,127 @@ aktuelles_Wetter = "Bewölkt"
 Grundwasserstand = 1000  
 def Wetter():
     global aktuelles_Wetter, Grundwasserstand
-##################Season Frühling#########################
+    
+    # Chance auf Wetteränderung
+    ChangeWetter = random.randint(1, 100)
+    print(f"Wetterwürfel: {ChangeWetter}")
+    
+    # Wetterbestimmung je nach Jahreszeit
     if Season == "Frühling":
-        # Chance auf Wetteränderung
-        ChangeWetter = random.randint(1, 100)
-        print(ChangeWetter)
-        
         # Säureregen (1% Chance)
         if ChangeWetter <= 1:
             aktuelles_Wetter = "Säureregen"
-            time.sleep(5)
         # Hitzewelle (1% Chance)
         elif ChangeWetter <= 2:
             aktuelles_Wetter = "Hitzewelle"
-            time.sleep(5)            
         # Hagel (1% Chance)
         elif ChangeWetter <= 3:
             aktuelles_Wetter = "Hagel"
-            time.sleep(5)
         # Sturm (2% Chance)
-        elif ChangeWetter <= 2:
+        elif ChangeWetter <= 5: 
             aktuelles_Wetter = "Sturm"
-            time.sleep(5)            
         # Gewitter (5% Chance)
-        elif ChangeWetter <= 5:
+        elif ChangeWetter <= 10:  
             aktuelles_Wetter = "Gewitter"
-            time.sleep(5)
         # Sonnig (10% Chance)
-        elif ChangeWetter <= 10:
+        elif ChangeWetter <= 20:  
             aktuelles_Wetter = "Sonne"
-            time.sleep(5)
         # Kältefront (15% Chance)
-        elif ChangeWetter <= 15:
+        elif ChangeWetter <= 35: 
             aktuelles_Wetter = "Kältefront"
-            time.sleep(5)
         # Regen (30% Chance)
-        elif ChangeWetter <= 30:
+        elif ChangeWetter <= 65:  
             Regenmenge = random.randint(500, 2000)
             Grundwasserstand += Regenmenge
             aktuelles_Wetter = "Regen"
-            time.sleep(5)            
+            print(f"Regenmenge: {Regenmenge}")
         # Normales Wetter (35% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
-            time.sleep(5)
-##################Season Sommer#########################
-    if Season == "Sommer":
-        # Chance auf Wetteränderung
-        ChangeWetter = random.randint(1, 100)
-        
+            
+    elif Season == "Sommer":
         # Säureregen (1% Chance)
         if ChangeWetter <= 1:
             aktuelles_Wetter = "Säureregen"
-            time.sleep(5)
-        # Kältefront (0% Chance)
-        elif ChangeWetter <= 0:
-            aktuelles_Wetter = "Kältefront"
-            time.sleep(5)            
         # Hagel (2% Chance)
-        elif ChangeWetter <= 2:
+        elif ChangeWetter <= 3: 
             aktuelles_Wetter = "Hagel"
-            time.sleep(5)
         # Sturm (8% Chance)
-        elif ChangeWetter <= 8:
+        elif ChangeWetter <= 11:  
             aktuelles_Wetter = "Sturm"
-            time.sleep(5)     
         # Sonnig (10% Chance)
-        elif ChangeWetter <= 10:
+        elif ChangeWetter <= 21:  
             aktuelles_Wetter = "Sonne"
-            time.sleep(5)                   
         # Gewitter (15% Chance)
-        elif ChangeWetter <= 15:
+        elif ChangeWetter <= 36:  
             aktuelles_Wetter = "Gewitter"
-            time.sleep(5)
         # Hitzewelle (15% Chance)
-        elif ChangeWetter <= 15:
+        elif ChangeWetter <= 51:  
             aktuelles_Wetter = "Hitzewelle"
-            time.sleep(5)
         # Regen (40% Chance)
-        elif ChangeWetter <= 40:
+        elif ChangeWetter <= 91:  
             Regenmenge = random.randint(500, 2000)
             Grundwasserstand += Regenmenge
             aktuelles_Wetter = "Regen"
-            time.sleep(5)            
+            print(f"Regenmenge: {Regenmenge}")
         # Normales Wetter (9% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
-            time.sleep(5)
-##################Season Herbst#########################
-    if Season == "Herbst":
-        # Chance auf Wetteränderung
-        ChangeWetter = random.randint(1, 100)
-        
+            
+    elif Season == "Herbst":
         # Säureregen (1% Chance)
         if ChangeWetter <= 1:
             aktuelles_Wetter = "Säureregen"
-            time.sleep(5)
-        # Hitzewelle (0% Chance)
-        elif ChangeWetter <= 0:
-            aktuelles_Wetter = "Hitzewelle"
-            time.sleep(5)
         # Kältefront (1% Chance)
-        elif ChangeWetter <= 1:
+        elif ChangeWetter <= 2:  
             aktuelles_Wetter = "Kältefront"
-            time.sleep(5)                        
         # Hagel (2% Chance)
-        elif ChangeWetter <= 2:
+        elif ChangeWetter <= 4:  
             aktuelles_Wetter = "Hagel"
-            time.sleep(5)
         # Gewitter (8% Chance)
-        elif ChangeWetter <= 8:
+        elif ChangeWetter <= 12:  
             aktuelles_Wetter = "Gewitter"
-            time.sleep(5)
         # Sonnig (8% Chance)
-        elif ChangeWetter <= 8:
+        elif ChangeWetter <= 20:  
             aktuelles_Wetter = "Sonne"
-            time.sleep(5)
         # Sturm (12% Chance)
-        elif ChangeWetter <= 12:
+        elif ChangeWetter <= 32:  
             aktuelles_Wetter = "Sturm"
-            time.sleep(5)
         # Regen (40% Chance)
-        elif ChangeWetter <= 40:
+        elif ChangeWetter <= 72:  
             Regenmenge = random.randint(500, 2000)
             Grundwasserstand += Regenmenge
             aktuelles_Wetter = "Regen"
-            time.sleep(5)            
+            print(f"Regenmenge: {Regenmenge}")
         # Normales Wetter (28% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
-            time.sleep(5)
-##################Season Winter#########################
-    if Season == "Winter":
-        # Chance auf Wetteränderung
-        ChangeWetter = random.randint(1, 100)
-        
+            
+    elif Season == "Winter":
         # Säureregen (1% Chance)
         if ChangeWetter <= 1:
             aktuelles_Wetter = "Säureregen"
-            time.sleep(5)
-        # Hitzewelle (0% Chance)
-        elif ChangeWetter <= 0:
-            aktuelles_Wetter = "Hitzewelle"
-            time.sleep(5)            
-        # Hagel (0% Chance)
-        elif ChangeWetter <= 0:
-            aktuelles_Wetter = "Hagel"
-            time.sleep(5)
         # Gewitter (2% Chance)
-        elif ChangeWetter <= 2:
+        elif ChangeWetter <= 3:  
             aktuelles_Wetter = "Gewitter"
-            time.sleep(5)
         # Sonnig (8% Chance)
-        elif ChangeWetter <= 8:
+        elif ChangeWetter <= 11:  
             aktuelles_Wetter = "Sonne"
-            time.sleep(5)
         # Sturm (12% Chance)
-        elif ChangeWetter <= 12:
+        elif ChangeWetter <= 23:  
             aktuelles_Wetter = "Sturm"
-            time.sleep(5)
         # Regen (30% Chance)
-        elif ChangeWetter <= 30:
+        elif ChangeWetter <= 53:  
             Regenmenge = random.randint(500, 2000)
             Grundwasserstand += Regenmenge
             aktuelles_Wetter = "Regen"
-            time.sleep(5)            
+            print(f"Regenmenge: {Regenmenge}")
         # Kältefront (45% Chance)
-        elif ChangeWetter <= 45:
+        elif ChangeWetter <= 98:  
             aktuelles_Wetter = "Kältefront"
-            time.sleep(5)
         # Normales Wetter (2% Chance)
         else:
             aktuelles_Wetter = "Bewölkt"
-            time.sleep(5)
-    aktuelles_Wetter = "Bewölkt"
             
 # Vortpflanzen
 def Vortpflanzung(creature):
