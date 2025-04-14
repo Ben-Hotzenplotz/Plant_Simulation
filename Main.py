@@ -3,6 +3,10 @@ import random
 import threading 
 import time
 import random
+import tkinter as tk
+from tkinter import ttk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 ###################Plant_Simulation V_0.2#########################################
 ###########Todo Liste#######################################
@@ -21,11 +25,109 @@ import random
 
 ############################################################
 #####################Bug Liste################################
-
+#- Wenn mehrere Pflanzenschäden sind dann geht es über den Bildschirmrand
 
 
 
 ############################################################
+
+#Tabelle#
+
+def lade_daten(pfad):
+    daten = {}
+    with open(pfad, "r") as f:
+        zeilen = f.readlines()
+        for i in range(0, len(zeilen), 2):
+            tag = int(zeilen[i].split(":")[1].strip())
+            wert = zeilen[i+1].split(":")[1].strip()
+            daten[tag] = wert
+    return daten
+
+def starte_tkinter_gui():
+    def lade_gui():
+        root = tk.Tk()
+        root.title("Simulationsdaten mit Live-Graphen")
+
+        # Frame für Tabelle
+        tabelle_frame = ttk.Frame(root)
+        tabelle_frame.pack(side=tk.TOP, fill=tk.X)
+
+        # Tabelle erstellen
+        spalten = ["Tag", "Anzahl Pflanzen", "Bodennährstoffe", "Grundwasser", "Wetter"]
+        tree = ttk.Treeview(tabelle_frame, columns=spalten, show="headings")
+        
+        for spalte in spalten:
+            tree.heading(spalte, text=spalte)
+            tree.column(spalte, width=100)
+        
+        tree.pack(side=tk.LEFT)
+
+        # Frame für Graphen
+        graph_frame = ttk.Frame(root)
+        graph_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # Matplotlib Figure erstellen
+        fig, axs = plt.subplots(4, 1, figsize=(8, 8))
+        plt.subplots_adjust(hspace=0.5)
+        canvas = FigureCanvasTkAgg(fig, master=graph_frame)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        def aktualisiere_ansicht():
+            # Lade Daten neu
+            anzahl_pflanzen = lade_daten("Data/Anzahlpflanzen.txt")
+            boden = lade_daten("Data/Bodennährstoffe.txt")
+            wasser = lade_daten("Data/Grundwasserstand.txt")
+            wetter = lade_daten("Data/Wetter.txt")
+            alle_tage = sorted(set(anzahl_pflanzen) | set(boden) | set(wasser) | set(wetter))
+
+            # Aktualisiere Tabelle
+            tree.delete(*tree.get_children())
+            for tag in alle_tage:
+                tree.insert("", "end", values=(
+                    tag,
+                    anzahl_pflanzen.get(tag, "—"),
+                    boden.get(tag, "—"),
+                    wasser.get(tag, "—"),
+                    wetter.get(tag, "—")
+                ))
+
+            # Aktualisiere Graphen
+            for ax in axs:
+                ax.clear()
+
+            # Daten für Graphen vorbereiten
+            tags = sorted([int(t) for t in alle_tage])
+            pflanzen = [int(anzahl_pflanzen.get(t, 0)) for t in tags]
+            naehrstoffe = [int(boden.get(t, 0)) for t in tags]
+            wasserstand = [int(wasser.get(t, 0)) for t in tags]
+
+            # Graphen zeichnen
+            axs[0].plot(tags, pflanzen, 'g-')
+            axs[0].set_title('Anzahl Pflanzen')
+            axs[0].grid(True)
+
+            axs[1].plot(tags, naehrstoffe, 'brown')
+            axs[1].set_title('Bodennährstoffe')
+            axs[1].grid(True)
+
+            axs[2].plot(tags, wasserstand, 'blue')
+            axs[2].set_title('Grundwasserstand')
+            axs[2].grid(True)
+            
+            canvas.draw()
+
+            # Nächste Aktualisierung planen
+            root.after(5000, aktualisiere_ansicht)
+
+        # Erste Aktualisierung starten
+        aktualisiere_ansicht()
+        root.mainloop()
+
+    gui_thread = threading.Thread(target=lade_gui)
+    gui_thread.daemon = True
+    gui_thread.start()
+
+
 
 # Fenstergröße und Gittereinstellungen
 GRID_SIZE = 30  
@@ -540,6 +642,9 @@ def draw_grid():
 running = True
 selected_creature = None  # Speichert die ausgewählte Pflanze
 show_info_window = False
+
+starte_tkinter_gui()
+
 
 Leere_Dateien()
 
