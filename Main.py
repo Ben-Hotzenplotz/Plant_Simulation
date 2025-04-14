@@ -232,7 +232,7 @@ def Lebensprozesse():
                 # Energieverbrauch
                 creature.Energie -= creature.Energieverbrauch   # Mal gucken ob das so passt
                 creature.Alter += 1
-                Nährstoffverbrauch()
+                Nährstoffverbrauch(creature)
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
                 if Grundwasserstand > 0:
@@ -253,7 +253,7 @@ def Lebensprozesse():
                 # Energieverbrauch
                 creature.Energie -= creature.Energieverbrauch    # Mal gucken ob das so passt
                 creature.Alter += 1
-                Nährstoffverbrauch()
+                Nährstoffverbrauch(creature)
                 Wachstumsstadium(creature)
                 # Wasserverbrauch
                 if Grundwasserstand > 0:
@@ -277,7 +277,7 @@ def Nährstoffwiederherstellung():
     global Bodennährstoffgehalt
     Dazu = creature.Alter * 50             # Mal gucken ob das so passt
     Bodennährstoffgehalt += Dazu
-def Nährstoffverbrauch():
+def Nährstoffverbrauch(creature):
     global Bodennährstoffgehalt        
     Bodennährstoffgehalt -= creature.Nahrungsverbrauch 
             
