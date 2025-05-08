@@ -165,3 +165,4 @@ Data/Gesamtenergie.txt
 Data/Grundwasserstand.txt
 Data/Wetter.txt
 Maintest.py
+*.txt
