@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import sys
 
 ###################Plant_Simulation V_0.2#########################################
 ###########Todo Liste#######################################
@@ -26,6 +27,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 ############################################################
 #####################Bug Liste################################
 #- Wenn mehrere Pflanzenschäden sind dann geht es über den Bildschirmrand
+# -> Ich glaube Pflanzenschäden sind kaputt
 
 
 
@@ -43,8 +45,15 @@ def lade_daten(pfad):
             daten[tag] = wert
     return daten
 
+global tk_should_close
+tk_should_close = False
+
+
+
 def starte_tkinter_gui():
     def lade_gui():
+        global root
+        
         root = tk.Tk()
         root.title("Simulationsdaten mit Live-Graphen")
 
@@ -67,12 +76,21 @@ def starte_tkinter_gui():
         graph_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Matplotlib Figure erstellen
-        fig, axs = plt.subplots(4, 1, figsize=(8, 8))
+        fig, axs = plt.subplots(3, 1, figsize=(8, 8))
         plt.subplots_adjust(hspace=0.5)
         canvas = FigureCanvasTkAgg(fig, master=graph_frame)
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         def aktualisiere_ansicht():
+            if tk_should_close or not root.winfo_exists():
+                try:
+                    root.destroy()
+                except:
+                    pass
+                return
+            
+            
+            
             # Lade Daten neu
             anzahl_pflanzen = lade_daten("Data/Anzahlpflanzen.txt")
             boden = lade_daten("Data/Bodennährstoffe.txt")
@@ -122,10 +140,12 @@ def starte_tkinter_gui():
         # Erste Aktualisierung starten
         aktualisiere_ansicht()
         root.mainloop()
+    lade_gui()
 
-    gui_thread = threading.Thread(target=lade_gui)
-    gui_thread.daemon = True
-    gui_thread.start()
+
+
+
+
 
 
 
@@ -136,6 +156,11 @@ GRID_HEIGHT = 20
 WIDTH, HEIGHT = GRID_WIDTH * GRID_SIZE, GRID_HEIGHT * GRID_SIZE  
 INFO_WIDTH = 300
 INFO_HEIGHT = 200
+pygame.font.init()
+font = pygame.font.SysFont(None, 40)
+global Datenaktiviert
+Datenaktiviert = False
+
 
 # Farben
 WHITE = (255, 255, 255)
@@ -151,6 +176,14 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pflanzen Simulation")
 clock = pygame.time.Clock()
+
+#Knopf
+button_rect = pygame.Rect(WIDTH - 30, HEIGHT - 30, 30, 60)
+button_color = GRAY
+button_text = font.render("D", True, WHITE)
+
+
+
 
 ############################################################
 # Pflanzennamen
@@ -172,7 +205,6 @@ initial_name_counter = 0
 class Creature:
     def __init__(self, x, y, eltern=None):
         global initial_name_counter
-
         self.x = x
         self.y = y
         self.Energie = 100  
@@ -345,7 +377,7 @@ def Lebensprozesse():
                     continue
                 # Energieregeneration
                 if Grundwasserstand and Bodennährstoffgehalt > 0:
-                    creature.Energie += random.randint(1, 5)
+                    creature.Energie += random.randint(1, 8)
             time.sleep(5)
         elif Tag == False:
             for creature in creatures:
@@ -368,7 +400,7 @@ def Lebensprozesse():
                     continue
                 # Energieregeneration
                 if Grundwasserstand and Bodennährstoffgehalt > 0:
-                    creature.Energie += random.randint(1, 5)
+                    creature.Energie += random.randint(1, 8)
             time.sleep(5)
             
         
@@ -539,19 +571,19 @@ def Pflanzenschädeneffekt():
     global Sturmschädenenergie, Sturmschädenwasser
     for creature in creatures:
         if "Säureschaden" in creature.Wetterschäden:
-            creature.Energie -= 10
-            Sturmschädenenergie = 3
+            creature.Energie -= 0 #ändern
+            #Sturmschädenenergie = 3
         if "Hagelschaden" in creature.Wetterschäden:
-            creature.Energie -= 20
-            Sturmschädenenergie = 2
+            creature.Energie -= 0 #ändern
+            #Sturmschädenenergie = 2
         if "Ast abgebrochen" in creature.Wetterschäden:
-            creature.Energie -= 15
-            Sturmschädenenergie = 1
-            Sturmschädenwasser = 2
+            creature.Energie -= 0 #ändern
+            #Sturmschädenenergie = 1
+            #Sturmschädenwasser = 2
         if "Infektion" in creature.Wetterschäden:
-            creature.Energie -= 25
-            Sturmschädenenergie = 5
-            Sturmschädenwasser = 5
+            creature.Energie -= 0 #ändern
+            #Sturmschädenenergie = 5
+            #Sturmschädenwasser = 5
             
 # Vortpflanzen
 def Vortpflanzung(creature):
@@ -559,15 +591,12 @@ def Vortpflanzung(creature):
         for _ in range(5):  # Bis zu 5 Versuche, einen freien Platz zu finden
             x1 = creature.x + random.choice([-2, -1, 0, 1, 2])
             y1 = creature.y + random.choice([-2, -1, 0, 1, 2])
-
         # Stelle sicher, dass die neuen Positionen innerhalb des Grids liegen
         x1 = max(0, min(x1, GRID_WIDTH - 1))
         y1 = max(0, min(y1, GRID_HEIGHT - 1))
-
         # Überprüfen, ob bereits eine Pflanze auf der Position existiert
         if any(c.x == x1 and c.y == y1 for c in creatures):
             return  # Falls besetzt keine neue Pflanze erzeugen
-
         # Erstelle eine neue Pflanze mit den Elterninformationen
         new_creature = Creature(x1, y1, eltern=creature)
         creatures.append(new_creature)
@@ -643,9 +672,6 @@ running = True
 selected_creature = None  # Speichert die ausgewählte Pflanze
 show_info_window = False
 
-starte_tkinter_gui()
-
-
 Leere_Dateien()
 
 while running:
@@ -672,6 +698,29 @@ while running:
         pygame.draw.rect(screen, BLACK, (WIDTH - INFO_WIDTH, 0, INFO_WIDTH, INFO_HEIGHT), 2)  # Rahmen
         # Zeichne die Informationen der Pflanze
         draw_info_panel(screen, selected_creature)
+        
+    # Knopf Stuff
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_pressed = pygame.mouse.get_pressed()
+    if button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(screen, BLUE, button_rect)
+        if mouse_pressed[0]:  # Linksklick
+            time.sleep(0.1)  # Kurze Verzögerung um Mehrfachklicks zu vermeiden
+            print("Button clicked")
+            if Datenaktiviert == False:
+                gui_thread = threading.Thread(target=starte_tkinter_gui)
+                gui_thread.start()
+                Datenaktiviert = True
+                tk_should_close = False
+            elif Datenaktiviert == True:
+                if root and root.winfo_exists():
+                    tk_should_close = True
+                    Datenaktiviert = False
+    else:
+        pygame.draw.rect(screen, button_color, button_rect)
+        
+    text_rect = button_text.get_rect(center=button_rect.center)
+    screen.blit(button_text, text_rect)
 
     pygame.display.flip()
     clock.tick(60)
