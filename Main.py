@@ -28,9 +28,13 @@ import sys
 #####################Bug Liste################################
 #- Wenn mehrere Pflanzenschäden sind dann geht es über den Bildschirmrand
 # -> Ich glaube Pflanzenschäden sind kaputt
-
-
-
+#################################################################
+#################### V2 Ideen ###################################
+# Jedes Grid hat seine eigenen Bodennährstoffe, Grundwasserstand etc   
+# Die Pflanzennamen haben tatsächlich was zu bedeuten -> Wasserverbrauch, Nährstoffverbrauch
+# -> Nährstoffe erweitern Phosphor, Kalium, Stickstoff, etc
+# 
+#
 ############################################################
 
 #Tabelle#
@@ -229,6 +233,19 @@ class Creature:
                 self.Pflanzenname = f"{eltern.Pflanzenname.split()[0]}{Nachnamengenerieren(eltern)}"
             else:
                 self.Pflanzenname = "Unbekannte Pflanze"
+
+## Grid ##
+
+
+
+
+
+
+
+
+
+
+
 
     def draw(self, surface):
         if self.Wachstumsstadium == "Setzling":
